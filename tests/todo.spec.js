@@ -259,3 +259,78 @@ test('should trim leading and trailing whitespace from a new todo', async ({ pag
   // Label text should be trimmed
   await expect(page.locator('.todo-list li label')).toContainText('Trimmed todo');
 });
+
+// TC-018: Double-clicking a todo label should enter edit mode
+test('should enter edit mode when a todo label is double-clicked', async ({ page }) => {
+  await page.locator('.new-todo').fill('Editable todo');
+  await page.locator('.new-todo').press('Enter');
+
+  // Double-click the label
+  await page.locator('.todo-list li label').dblclick();
+
+  // The list item should have the 'editing' class and the edit input should be visible
+  await expect(page.locator('.todo-list li')).toHaveClass(/editing/);
+  await expect(page.locator('.todo-list li .edit')).toBeVisible();
+});
+
+// TC-019: Adding multiple todos should update the item count correctly after each addition
+test('should update item count correctly as multiple todos are added', async ({ page }) => {
+  const todoCount = page.locator('.todo-count');
+
+  await page.locator('.new-todo').fill('Todo one');
+  await page.locator('.new-todo').press('Enter');
+  await expect(todoCount).toContainText('1 item left');
+
+  await page.locator('.new-todo').fill('Todo two');
+  await page.locator('.new-todo').press('Enter');
+  await expect(todoCount).toContainText('2 items left');
+
+  await page.locator('.new-todo').fill('Todo three');
+  await page.locator('.new-todo').press('Enter');
+  await expect(todoCount).toContainText('3 items left');
+});
+
+// TC-020: Completing all todos individually should cause toggle-all checkbox to become checked
+test('should check the toggle-all checkbox when all todos are individually completed', async ({ page }) => {
+  await page.locator('.new-todo').fill('Task one');
+  await page.locator('.new-todo').press('Enter');
+  await page.locator('.new-todo').fill('Task two');
+  await page.locator('.new-todo').press('Enter');
+
+  // Complete each todo individually
+  await page.locator('.todo-list li:nth-child(1) .toggle').click();
+  await page.locator('.todo-list li:nth-child(2) .toggle').click();
+
+  // Toggle-all checkbox should now be checked
+  await expect(page.locator('.toggle-all')).toBeChecked();
+});
+
+// TC-021: Todo order should be preserved after page reload
+test('should preserve todo order after page reload', async ({ page }) => {
+  await page.locator('.new-todo').fill('First');
+  await page.locator('.new-todo').press('Enter');
+  await page.locator('.new-todo').fill('Second');
+  await page.locator('.new-todo').press('Enter');
+  await page.locator('.new-todo').fill('Third');
+  await page.locator('.new-todo').press('Enter');
+
+  // Reload the page
+  await page.reload();
+
+  // Verify order is preserved
+  const items = page.locator('.todo-list li label');
+  await expect(items.nth(0)).toContainText('First');
+  await expect(items.nth(1)).toContainText('Second');
+  await expect(items.nth(2)).toContainText('Third');
+});
+
+// TC-022: Input field should be empty after a new todo is submitted
+test('should clear the input field after submitting a new todo', async ({ page }) => {
+  const input = page.locator('.new-todo');
+
+  await input.fill('Clear me after submit');
+  await input.press('Enter');
+
+  // Input should be empty
+  await expect(input).toHaveValue('');
+});
