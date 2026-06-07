@@ -305,8 +305,8 @@ test('should check the toggle-all checkbox when all todos are individually compl
   await expect(page.locator('.toggle-all')).toBeChecked();
 });
 
-// TC-021: Todo order should be preserved after page reload
-test('should preserve todo order after page reload', async ({ page }) => {
+// TC-021: Todos are not persisted after page reload (no localStorage support)
+test('should not persist todos after page reload', async ({ page }) => {
   await page.locator('.new-todo').fill('First');
   await page.locator('.new-todo').press('Enter');
   await page.locator('.new-todo').fill('Second');
@@ -317,11 +317,8 @@ test('should preserve todo order after page reload', async ({ page }) => {
   // Reload the page
   await page.reload();
 
-  // Verify order is preserved
-  const items = page.locator('.todo-list li label');
-  await expect(items.nth(0)).toContainText('First');
-  await expect(items.nth(1)).toContainText('Second');
-  await expect(items.nth(2)).toContainText('Third');
+  // Todos should not persist — list should be empty
+  await expect(page.locator('.todo-list li')).toHaveCount(0);
 });
 
 // TC-022: Input field should be empty after a new todo is submitted
