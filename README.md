@@ -13,15 +13,17 @@ Playwright test suite for the React implementation of TodoMVC.
 - Edge cases: whitespace input, Escape to cancel edit, toggle-all, item counter, edit-to-delete, trim whitespace
 
 ## Installation
-\\\ash
+
+```bash
 npm install
 npx playwright install
-\\\
+```
 
 ## Running the Tests
-\\\ash
+
+```bash
 npx playwright test
-\\\
+```
 
 ## Tech Stack
 
